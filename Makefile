@@ -177,6 +177,7 @@ $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(BIN) $< $@	
+	$(PYTHON) utils/fw-pack.py $@ "muzkr" $(VERSION_STRING) $(BUILD_DIR)/$(TARGET).packed.bin
 	
 $(BUILD_DIR)/%.uf2: $(BUILD_DIR)/%.bin | $(BUILD_DIR)
 	$(PYTHON) utils/uf2conv.py -c -b 0x08002800 -o $@ $<

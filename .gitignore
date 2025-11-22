@@ -55,6 +55,5 @@ dkms.conf
 *.dwo
 
 /.venv
-/requirements.txt
 /.vscode
 /build
