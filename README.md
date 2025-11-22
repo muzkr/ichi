@@ -1,6 +1,6 @@
 # Ichi: Bootloader Updater for Quansheng UV-K5 (V3) and Variants
 
-Ichi ("一 / いち", Japanese number 1 :one:) is a bootloader update program for the QS UV-K5 (V3) and variants (UV-K6, UV-K1, etc).
+Ichi ("いち/一", Japanese number 1 :one:) is a bootloader update program for the QS UV-K5 (V3) and variants (UV-K6, UV-K1, etc).
 
 Ichi mounts the radio as a USB disk on the computer, offering a drag-and-drop experience that frees users from the hassle of special tools or command lines.
 
