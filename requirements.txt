@@ -3,3 +3,5 @@
 
 # for fw-pack.py
 crcmod
+
+uf2utils

@@ -3,4 +3,5 @@
 
 !.gitignore
 !/uf2*
+!/uf2tk/*
 !/fw-pack.py
