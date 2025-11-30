@@ -11,6 +11,7 @@
 #define PAGE_SIZE 256
 #define MAX_BLOCKS 1024 // Support 256 KB of payload data
 
+typedef void (*read_page_func_t)(uint32_t addr, uint8_t *buf);
 typedef void (*program_page_func_t)(uint32_t addr, const uint8_t *buf);
 
 enum
@@ -25,11 +26,14 @@ static struct
     uint32_t base_addr;
     uint32_t num_pages;
     uint32_t num_blocks;
+    read_page_func_t read_page_func;
     program_page_func_t program_page_func;
     uint8_t in_progress;
 } program_state = {0};
 
 static uint8_t block_map[MAX_BLOCKS] = {0};
+
+static uint8_t page_buf[PAGE_SIZE];
 
 static uint32_t check_block(const uf2_block_t *block)
 {
@@ -79,6 +83,7 @@ static bool accept_first_block(const uf2_block_t *block)
         program_state.base_addr = BL_ADDR;
         program_state.num_pages = BL_PAGE_NUM;
         program_state.num_blocks = block->num_blocks;
+        program_state.read_page_func = internal_flash_read_page;
         program_state.program_page_func = internal_flash_program_page;
         return true;
     }
@@ -88,7 +93,8 @@ static bool accept_first_block(const uf2_block_t *block)
         program_state.base_addr = PY25Q16_BASE_ADDR;
         program_state.num_pages = PY25Q16_PAGE_NUM;
         program_state.num_blocks = block->num_blocks;
-        program_state.program_page_func = (program_page_func_t)py25q16_write_page;
+        program_state.read_page_func = py25q16_read_page;
+        program_state.program_page_func = py25q16_write_page;
         return true;
     }
 
@@ -176,7 +182,16 @@ int usb_fs_sector_write(uint32_t sector, const uint8_t *buf, uint32_t size)
         }
 
         log("program: %d, %08x\n", block->block_no, block->target_addr);
-        program_state.program_page_func(block->target_addr, block->data);
+        if (block->payload_size < PAGE_SIZE)
+        {
+            program_state.read_page_func(block->target_addr, page_buf);
+            memcpy(page_buf, block->data, block->payload_size);
+            program_state.program_page_func(block->target_addr, page_buf);
+        }
+        else
+        {
+            program_state.program_page_func(block->target_addr, block->data);
+        }
         block_map[block->block_no] = true;
 
         if (program_finished())
